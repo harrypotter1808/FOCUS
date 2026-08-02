@@ -22,6 +22,8 @@ MODEL_POINTS_3D = np.array([
 ], dtype=np.float64)
 
 LANDMARK_IDX = [1, 152, 33, 263, 61, 291]
+BASELINE_YAW = -15.0  # your measured "facing forward" value -- recalibrate per camera setup
+YAW_DEVIATION_THRESHOLD = 25
 
 cap = cv2.VideoCapture(0)
 frame_timestamp_ms = 0
@@ -68,10 +70,17 @@ while True:
                 yaw = float(euler_angles[1])
                 roll = float(euler_angles[2])
 
+                if pitch < -90:
+                    pitch += 180
+                elif pitch > 90:
+                    pitch -= 180
+
                 cv2.putText(frame, f"Yaw: {yaw:.1f}  Pitch: {pitch:.1f}", (30, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+                print(f"Yaw: {yaw:.1f}  Pitch: {pitch:.1f}")
 
-                status = "LOOKING AWAY" if abs(yaw) > 25 else "FACING FORWARD"
+                deviation = abs(yaw - BASELINE_YAW)
+                status = "LOOKING AWAY" if deviation > YAW_DEVIATION_THRESHOLD else "FACING FORWARD"
                 color = (0, 0, 255) if status == "LOOKING AWAY" else (0, 255, 0)
                 cv2.putText(frame, status, (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)

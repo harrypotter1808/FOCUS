@@ -13,6 +13,7 @@ RIGHT_EYE = [362, 385, 387, 263, 373, 380]
 MOUTH_TOP, MOUTH_BOTTOM, MOUTH_LEFT, MOUTH_RIGHT = 13, 14, 78, 308
 LEFT_EYEBROW, LEFT_EYE_TOP = 105, 159
 LANDMARK_IDX = [1, 152, 33, 263, 61, 291]
+BASELINE_YAW = -15.0  # use YOUR measured value from test_headpose.py
 
 MODEL_POINTS_3D = np.array([
     (0.0, 0.0, 0.0), (0.0, -330.0, -65.0),
@@ -54,7 +55,8 @@ def head_pose_deviation(landmarks, w, h):
     _, _, _, _, _, _, euler_angles = cv2.decomposeProjectionMatrix(pose_mat)
     euler_angles = euler_angles.flatten()
     yaw = float(euler_angles[1])
-    return min(abs(yaw) / 45.0, 1.0)
+    deviation = abs(yaw - BASELINE_YAW)
+    return min(deviation / 45.0, 1.0)
 
 def expression_score(landmarks, w, h):
     mouth_top = get_point(landmarks, MOUTH_TOP, w, h)
